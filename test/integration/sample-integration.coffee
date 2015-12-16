@@ -1,6 +1,6 @@
 http    = require 'http'
 request = require 'request'
-shmock  = require 'shmock'
+shmock  = require '@octoblu/shmock'
 Server  = require '../../src/server'
 
 describe 'POST /some/route', ->
