@@ -1,7 +1,10 @@
+ConfigController = require './controllers/config-controller'
+
 class Router
-  constructor: (options) ->
+  constructor: ({shadowServiceUri}) ->
+    @configController = new ConfigController({shadowServiceUri})
 
   route: (app) =>
-    # e.g. app.put '/resource/:id', someController.update
+    app.post '/config', @configController.update
 
 module.exports = Router

@@ -4,13 +4,14 @@ express            = require 'express'
 bodyParser         = require 'body-parser'
 errorHandler       = require 'errorhandler'
 meshbluHealthcheck = require 'express-meshblu-healthcheck'
+meshbluAuth        = require 'express-meshblu-auth'
 debug              = require('debug')('gateblu-shadow-service:server')
 Router             = require './router'
 
 class Server
   constructor: (options)->
     {@disableLogging, @port} = options
-    {@meshbluConfig} = options
+    {@meshbluConfig, @shadowServiceUri} = options
 
   address: =>
     @server.address()
@@ -21,6 +22,7 @@ class Server
     app.use cors()
     app.use errorHandler()
     app.use meshbluHealthcheck()
+    app.use meshbluAuth(@meshbluConfig)
     app.use bodyParser.urlencoded limit: '50mb', extended : true
     app.use bodyParser.json limit : '50mb'
 
@@ -28,6 +30,7 @@ class Server
 
     router = new Router
       meshbluConfig: @meshbluConfig
+      shadowServiceUri: @shadowServiceUri
     router.route app
 
     @server = app.listen @port, callback
