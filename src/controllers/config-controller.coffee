@@ -15,9 +15,8 @@ class ConfigController
         type: 'device:not-gateblu'
         foo: 'bar'
 
-
     request.post options, (error, response) ->
-
-      return res.sendStatus 204
+      return res.status(502).send 'Could not contact the shadow service' if error?
+      res.status(response.statusCode).send response.body
 
 module.exports = ConfigController
