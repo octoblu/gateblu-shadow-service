@@ -5,9 +5,10 @@ Server        = require './src/server'
 class Command
   constructor: ->
     @serverOptions =
-      meshbluConfig:  new MeshbluConfig().toJSON()
-      port:           process.env.PORT || 80
-      disableLogging: process.env.DISABLE_LOGGING == "true"
+      meshbluConfig   : new MeshbluConfig().toJSON()
+      port            : process.env.PORT || 80
+      disableLogging  : process.env.DISABLE_LOGGING == "true"
+      shadowServiceUri: process.env.shadowServiceUri || 'https://shadow.octoblu.com' 
 
   panic: (error) =>
     console.error error.stack
