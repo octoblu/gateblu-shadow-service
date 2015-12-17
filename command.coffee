@@ -8,7 +8,7 @@ class Command
       meshbluConfig   : new MeshbluConfig().toJSON()
       port            : process.env.PORT || 80
       disableLogging  : process.env.DISABLE_LOGGING == "true"
-      shadowServiceUri: process.env.shadowServiceUri || 'https://shadow.octoblu.com' 
+      shadowServiceUri: process.env.shadowServiceUri || 'https://shadow.octoblu.com'
 
   panic: (error) =>
     console.error error.stack
