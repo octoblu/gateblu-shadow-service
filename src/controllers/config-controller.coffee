@@ -1,3 +1,4 @@
+debug = require('debug')('gateblu-shadow-service:config-controller')
 VirtualGateblu = require '../models/virtual-gateblu'
 
 class ConfigController
@@ -9,6 +10,7 @@ class ConfigController
 
     virtualGateblu = new VirtualGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
     virtualGateblu.updateRealGateblu (error) =>
+      debug 'updateRealGateblu', error
       return @sendError {response, error} if error?
       response.sendStatus 204
 
