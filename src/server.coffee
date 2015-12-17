@@ -7,11 +7,13 @@ meshbluHealthcheck = require 'express-meshblu-healthcheck'
 meshbluAuth        = require 'express-meshblu-auth'
 debug              = require('debug')('gateblu-shadow-service:server')
 Router             = require './router'
+ShadowService      = require './services/shadow-service'
 
 class Server
   constructor: (options)->
     {@disableLogging, @port} = options
-    {@meshbluConfig, @shadowServiceUri} = options
+    {@meshbluConfig, shadowServiceUri} = options
+    @shadowService =  new ShadowService {shadowServiceUri}
 
   address: =>
     @server.address()
@@ -30,7 +32,7 @@ class Server
 
     router = new Router
       meshbluConfig: @meshbluConfig
-      shadowServiceUri: @shadowServiceUri
+      shadowService: @shadowService
     router.route app
 
     @server = app.listen @port, callback
