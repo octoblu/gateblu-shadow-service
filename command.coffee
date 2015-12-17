@@ -1,3 +1,5 @@
+### !pragma coverage-skip-block ###
+
 _             = require 'lodash'
 MeshbluConfig = require 'meshblu-config'
 Server        = require './src/server'
