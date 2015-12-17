@@ -1,14 +1,25 @@
-_ = require 'lodash'
+VirtualGateblu = require '../models/virtual-gateblu'
 
 class ConfigController
   constructor: ({@shadowService}) ->
 
-  update: (req, res) =>
-    meshbluAuth = _.pick req.meshbluAuth, 'uuid', 'token'
-    body = req.body
+  update: (request, response) =>
+    return response.sendStatus 422 unless request.body.type?
+    return @proxy request, response unless request.body.type == 'device:gateblu'
 
-    @shadowService.proxy {meshbluAuth, body}, (error, response) =>
-      return res.status(500).send error.message if error?
-      res.status(response.statusCode).send response.body
+    virtualGateblu = new VirtualGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
+    virtualGateblu.updateRealGateblu (error) =>
+      return @sendError({response, error}) if error?
+      response.sendStatus 204
+
+  proxy: ({body,meshbluAuth}, response) =>
+    @shadowService.proxy {meshbluAuth, body}, (error, proxyResponse) =>
+      return @sendError({response, error}) if error?
+      response.status(proxyResponse.statusCode).send proxyResponse.body
+
+  sendError: ({response,error}) =>
+    return response.status(500).send error.message unless error.code?
+    return response.status(error.code).send error.message
+
 
 module.exports = ConfigController
