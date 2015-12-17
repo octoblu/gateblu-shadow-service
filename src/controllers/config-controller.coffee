@@ -9,13 +9,13 @@ class ConfigController
 
     virtualGateblu = new VirtualGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
     virtualGateblu.updateRealGateblu (error) =>
-      return @sendError({response, error}) if error?
+      return @sendError {response, error} if error?
       response.sendStatus 204
 
   proxy: ({body,meshbluAuth}, response) =>
-    @shadowService.proxy {meshbluAuth, body}, (error, proxyResponse) =>
-      return @sendError({response, error}) if error?
-      response.status(proxyResponse.statusCode).send proxyResponse.body
+    @shadowService.proxy {meshbluAuth, body}, (error) =>
+      return @sendError {response, error} if error?
+      response.sendStatus 204
 
   sendError: ({response,error}) =>
     return response.status(500).send error.message unless error.code?

@@ -12,12 +12,17 @@ class ShadowService
         password: meshbluAuth.token
       json: body
 
-    request.post options, (error, response) =>
-      return callback null, @_gatewayErrorResponse() if error?
-      callback null, response, body
+    request.post options, (error, response, body) =>
+      return callback @_gatewayError() if error?
+      return callback @_error(response.statusCode, body) if response.statusCode > 299
+      callback null
 
-  _gatewayErrorResponse: =>
-    statusCode: 502
-    body: 'Could not contact the shadow service'
+  _gatewayError: =>
+    @_error 502, 'Could not contact the shadow service'
+
+  _error: (code, message) =>
+    error = new Error message
+    error.code = code ? 500
+    return error
 
 module.exports = ShadowService
