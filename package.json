@@ -1,6 +1,6 @@
 {
   "name": "gateblu-shadow-service",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Put some description here",
   "keywords": [],
   "homepage": "https://github.com/octoblu/gateblu-shadow-service",
@@ -40,6 +40,7 @@
     "express-meshblu-auth": "^1.6.4",
     "express-meshblu-healthcheck": "^1.0.1",
     "lodash": "^3.10.1",
+    "meshblu-config": "^3.1.1",
     "morgan": "^1.6.1"
   },
   "peerDependencies": {},
