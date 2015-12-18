@@ -20,10 +20,6 @@ class VirtualGateblu
       return callback error if error?
 
       uuid = @attributes.shadowing.uuid
-      update =
-        $set:
-          devices: subdeviceUuids
-
-      @meshblu.updateDangerously uuid, update, callback
+      @meshblu.update uuid, devices: subdeviceUuids, callback
 
 module.exports = VirtualGateblu

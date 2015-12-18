@@ -1,7 +1,7 @@
-debug = require('debug')('gateblu-shadow-service:config-controller')
+debug = require('debug')('gateblu-shadow-service:virtual-config-controller')
 VirtualGateblu = require '../models/virtual-gateblu'
 
-class ConfigController
+class VirtualConfigController
   constructor: ({@shadowService}) ->
 
   update: (request, response) =>
@@ -20,7 +20,7 @@ class ConfigController
       response.sendStatus 204
 
   proxy: ({body,meshbluAuth}, response) =>
-    @shadowService.proxy {meshbluAuth, body}, (error) =>
+    @shadowService.proxyVirtual {meshbluAuth, body}, (error) =>
       return @sendError {response, error} if error?
       debug "204: proxy success"
       response.sendStatus 204
@@ -32,4 +32,4 @@ class ConfigController
     return response.status(error.code).send error.message
 
 
-module.exports = ConfigController
+module.exports = VirtualConfigController

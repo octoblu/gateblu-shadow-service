@@ -3,7 +3,7 @@ request = require 'request'
 shmock  = require '@octoblu/shmock'
 Server  = require '../../src/server'
 
-describe 'Virtual Non-Gateblu config event', ->
+describe 'Real Non-Gateblu config event', ->
   describe 'with a shadow service', ->
     beforeEach (done) ->
       @meshblu = shmock 0xd00d
@@ -32,28 +32,28 @@ describe 'Virtual Non-Gateblu config event', ->
 
     describe 'When the shadow service responds with a 204', ->
       beforeEach (done) ->
-        teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+        deviceAuth = new Buffer('real-device-uuid:real-device-token').toString 'base64'
         @meshblu
           .get '/v2/whoami'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .reply 200, uuid: 'team-uuid', token: 'team-token'
+          .set 'Authorization', "Basic #{deviceAuth}"
+          .reply 200, uuid: 'real-device-uuid', token: 'real-device-token'
 
         @proxyConfigToShadowService = @shadowService
-          .post '/virtual/config'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
+          .post '/real/config'
+          .set 'Authorization', "Basic #{deviceAuth}"
+          .send uuid: 'real-device-uuid', type: 'device:not-gateblu', foo: 'bar', shadows: [{uuid: 'some-uuid'}]
           .reply 204
 
         options =
           baseUrl: "http://localhost:#{@serverPort}"
-          uri: '/virtual/config'
+          uri: '/real/config'
           auth:
-            username: 'team-uuid'
-            password: 'team-token'
+            username: 'real-device-uuid'
+            password: 'real-device-token'
           json:
-            uuid: 'device-uuid'
+            uuid: 'real-device-uuid'
             type: 'device:not-gateblu'
-            shadowing: {uuid: 'some-uuid'}
+            shadows: [{uuid: 'some-uuid'}]
             foo: 'bar'
 
         request.post options, (error, @response, @body) => done error
@@ -66,29 +66,29 @@ describe 'Virtual Non-Gateblu config event', ->
 
     describe 'When the shadow service responds with a 403', ->
       beforeEach (done) ->
-        teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+        deviceAuth = new Buffer('real-device-uuid:real-device-token').toString 'base64'
         @meshblu
           .get '/v2/whoami'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .reply 200, uuid: 'team-uuid', token: 'team-token'
+          .set 'Authorization', "Basic #{deviceAuth}"
+          .reply 200, uuid: 'real-device-uuid', token: 'real-device-token'
 
         @proxyConfigToShadowService = @shadowService
-          .post '/virtual/config'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
+          .post '/real/config'
+          .set 'Authorization', "Basic #{deviceAuth}"
+          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadows: [{uuid: 'some-uuid'}]
           .reply 403, 'Not authorized to modify that device'
 
         options =
           baseUrl: "http://localhost:#{@serverPort}"
-          uri: '/virtual/config'
+          uri: '/real/config'
           auth:
-            username: 'team-uuid'
-            password: 'team-token'
+            username: 'real-device-uuid'
+            password: 'real-device-token'
           json:
             uuid: 'device-uuid'
             type: 'device:not-gateblu'
             foo: 'bar'
-            shadowing: {uuid: 'some-uuid'}
+            shadows: [{uuid: 'some-uuid'}]
 
         request.post options, (error, @response, @body) => done error
 
@@ -125,23 +125,23 @@ describe 'Virtual Non-Gateblu config event', ->
 
     describe 'When a request is made', ->
       beforeEach (done) ->
-        teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+        deviceAuth = new Buffer('real-device-uuid:real-device-token').toString 'base64'
         @meshblu
           .get '/v2/whoami'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .reply 200, uuid: 'team-uuid', token: 'team-token'
+          .set 'Authorization', "Basic #{deviceAuth}"
+          .reply 200, uuid: 'real-device-uuid', token: 'real-device-token'
 
         options =
           baseUrl: "http://localhost:#{@serverPort}"
-          uri: '/virtual/config'
+          uri: '/real/config'
           auth:
-            username: 'team-uuid'
-            password: 'team-token'
+            username: 'real-device-uuid'
+            password: 'real-device-token'
           json:
             uuid: 'device-uuid'
             type: 'device:not-gateblu'
             foo: 'bar'
-            shadowing: {uuid: 'some-uuid'}
+            shadows: [{uuid: 'some-uuid'}]
 
         request.post options, (error, @response, @body) => done error
 
