@@ -5,6 +5,6 @@ class Router
     @configController = new ConfigController({shadowService})
 
   route: (app) =>
-    app.post '/config', @configController.update
+    app.post '/virtual/config', @configController.update
 
 module.exports = Router

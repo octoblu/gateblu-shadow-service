@@ -47,7 +47,7 @@ describe 'Gateblu config event', ->
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/config'
+        uri: '/virtual/config'
         auth:
           username: 'team-uuid'
           password: 'team-token'
@@ -87,7 +87,7 @@ describe 'Gateblu config event', ->
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/config'
+        uri: '/virtual/config'
         auth:
           username: 'team-uuid'
           password: 'team-token'
@@ -121,7 +121,7 @@ describe 'Gateblu config event', ->
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/config'
+        uri: '/virtual/config'
         auth:
           username: 'team-uuid'
           password: 'team-token'
@@ -150,7 +150,7 @@ describe 'Gateblu config event', ->
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/config'
+        uri: '/virtual/config'
         auth:
           username: 'team-uuid'
           password: 'team-token'
