@@ -41,7 +41,7 @@ describe 'Non-Gateblu config event', ->
         @proxyConfigToShadowService = @shadowService
           .post '/config'
           .set 'Authorization', "Basic #{teamAuth}"
-          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar'
+          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
           .reply 204
 
         options =
@@ -53,6 +53,7 @@ describe 'Non-Gateblu config event', ->
           json:
             uuid: 'device-uuid'
             type: 'device:not-gateblu'
+            shadowing: {uuid: 'some-uuid'}
             foo: 'bar'
 
         request.post options, (error, @response, @body) => done error
@@ -74,7 +75,7 @@ describe 'Non-Gateblu config event', ->
         @proxyConfigToShadowService = @shadowService
           .post '/config'
           .set 'Authorization', "Basic #{teamAuth}"
-          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar'
+          .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
           .reply 403, 'Not authorized to modify that device'
 
         options =
@@ -87,6 +88,7 @@ describe 'Non-Gateblu config event', ->
             uuid: 'device-uuid'
             type: 'device:not-gateblu'
             foo: 'bar'
+            shadowing: {uuid: 'some-uuid'}
 
         request.post options, (error, @response, @body) => done error
 
@@ -139,6 +141,7 @@ describe 'Non-Gateblu config event', ->
             uuid: 'device-uuid'
             type: 'device:not-gateblu'
             foo: 'bar'
+            shadowing: {uuid: 'some-uuid'}
 
         request.post options, (error, @response, @body) => done error
 

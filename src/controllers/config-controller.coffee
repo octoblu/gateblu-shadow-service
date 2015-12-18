@@ -6,6 +6,7 @@ class ConfigController
 
   update: (request, response) =>
     return response.sendStatus 422 unless request.body.type?
+    return response.sendStatus 204 unless request.body.shadowing?.uuid?
     return @proxy request, response unless request.body.type == 'device:gateblu'
 
     virtualGateblu = new VirtualGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
