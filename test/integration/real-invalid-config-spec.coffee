@@ -3,7 +3,7 @@ request = require 'request'
 shmock  = require '@octoblu/shmock'
 Server  = require '../../src/server'
 
-describe 'Virtual invalid config events', ->
+describe 'Real invalid config events', ->
   describe 'with a shadow service', ->
     beforeEach (done) ->
       @meshblu = shmock 0xd00d
@@ -28,18 +28,18 @@ describe 'Virtual invalid config events', ->
 
     describe 'When the request contains no body', ->
       beforeEach (done) ->
-        teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+        gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
         @meshblu
           .get '/v2/whoami'
-          .set 'Authorization', "Basic #{teamAuth}"
-          .reply 200, uuid: 'team-uuid', token: 'team-token'
+          .set 'Authorization', "Basic #{gatebluAuth}"
+          .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
 
         options =
           baseUrl: "http://localhost:#{@serverPort}"
-          uri: '/virtual/config'
+          uri: '/real/config'
           auth:
-            username: 'team-uuid'
-            password: 'team-token'
+            username: 'real-gateblu-uuid'
+            password: 'real-gateblu-token'
 
         request.post options, (error, @response, @body) => done error
 
