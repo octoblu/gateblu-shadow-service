@@ -121,37 +121,37 @@ describe 'Real Gateblu config event', ->
     it 'should update the second virtual Gateblu device in Meshblu', ->
       @updateVirtualGatebluDevice1.done()
 
-  xdescribe 'When the team does not have permission to update the real gateblu', ->
+  describe 'When the real gateblu does not have permission to update the virtual gateblu', ->
     beforeEach (done) ->
-      teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+      gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
 
       @meshblu
         .get '/v2/whoami'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .reply 200, uuid: 'team-uuid', token: 'team-token'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
 
       @meshblu
-        .get '/v2/devices/virtual-subdevice-uuid'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .reply 200, shadowing: {uuid: 'real-subdevice-uuid'}
+        .get '/v2/devices/real-subdevice-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, shadows: [{uuid: 'virtual-subdevice-uuid', owner: 'user-uuid'}]
 
-      @meshblu
-        .put '/v2/devices/real-gateblu-uuid'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .send $set: {devices: ['real-subdevice-uuid']}
-        .reply 403, error: 'No permission'
+      @updateVirtualGatebluDevice = @meshblu
+        .patch '/v2/devices/virtual-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .send devices: ['virtual-subdevice-uuid']
+        .reply 403, error: 'No dogs allowed'
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/virtual/config'
+        uri: '/real/config'
         auth:
-          username: 'team-uuid'
-          password: 'team-token'
+          username: 'real-gateblu-uuid'
+          password: 'real-gateblu-token'
         json:
-          uuid: 'virtual-gateblu-uuid'
+          uuid: 'real-gateblu-uuid'
           type: 'device:gateblu'
-          shadowing: {uuid: 'real-gateblu-uuid'}
-          devices: ['virtual-subdevice-uuid']
+          shadows: [{uuid: 'virtual-gateblu-uuid', owner: 'user-uuid'}]
+          devices: ['real-subdevice-uuid']
 
       request.post options, (error, @response, @body) => done error
 
@@ -159,33 +159,33 @@ describe 'Real Gateblu config event', ->
       expect(@response.statusCode).to.equal 403, @body
 
     it 'should return a usefull error message', ->
-      expect(@body).to.deep.equal 'No permission'
+      expect(@body).to.deep.equal 'No dogs allowed'
 
-  xdescribe 'When the team does not have permission to see the virtual subdevice', ->
+  describe 'When the real gateblu does not have permission to see the real subdevice', ->
     beforeEach (done) ->
-      teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+      gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
 
       @meshblu
         .get '/v2/whoami'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .reply 200, uuid: 'team-uuid', token: 'team-token'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
 
       @meshblu
-        .get '/v2/devices/virtual-subdevice-uuid'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .reply 403, 'You do not belong here'
+        .get '/v2/devices/real-subdevice-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 403, 'Just... no.'
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/virtual/config'
+        uri: '/real/config'
         auth:
-          username: 'team-uuid'
-          password: 'team-token'
+          username: 'real-gateblu-uuid'
+          password: 'real-gateblu-token'
         json:
-          uuid: 'virtual-gateblu-uuid'
+          uuid: 'real-gateblu-uuid'
           type: 'device:gateblu'
-          shadowing: {uuid: 'real-gateblu-uuid'}
-          devices: ['virtual-subdevice-uuid']
+          shadows: [{uuid: 'virtual-gateblu-uuid', owner: 'user-uuid'}]
+          devices: ['real-subdevice-uuid']
 
       request.post options, (error, @response, @body) => done error
 
@@ -193,27 +193,27 @@ describe 'Real Gateblu config event', ->
       expect(@response.statusCode).to.equal 403, @body
 
     it 'should return a usefull error message', ->
-      expect(@body).to.deep.equal 'You do not belong here'
+      expect(@body).to.deep.equal 'Just... no.'
 
-  xdescribe 'When the gateblu is not shadowing anything', ->
+  describe 'When the real gateblu does not have shadows', ->
     beforeEach (done) ->
-      teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+      gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
 
       @meshblu
         .get '/v2/whoami'
-        .set 'Authorization', "Basic #{teamAuth}"
-        .reply 200, uuid: 'team-uuid', token: 'team-token'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
 
       options =
         baseUrl: "http://localhost:#{@serverPort}"
-        uri: '/virtual/config'
+        uri: '/real/config'
         auth:
-          username: 'team-uuid'
-          password: 'team-token'
+          username: 'real-gateblu-uuid'
+          password: 'real-gateblu-token'
         json:
-          uuid: 'virtual-gateblu-uuid'
+          uuid: 'real-gateblu-uuid'
           type: 'device:gateblu'
-          devices: ['virtual-subdevice-uuid']
+          devices: ['real-subdevice-uuid']
 
       request.post options, (error, @response, @body) => done error
 

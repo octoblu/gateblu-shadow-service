@@ -1,3 +1,4 @@
+_           = require 'lodash'
 debug       = require('debug')('gateblu-shadow-service:real-config-controller')
 RealGateblu = require '../models/real-gateblu'
 
@@ -5,6 +6,8 @@ class RealConfigController
   constructor: ({@shadowService}) ->
 
   update: (request, response) =>
+    debug '204: no request.body.shadowing.uuid' if _.isEmpty request.body.shadows
+    return response.sendStatus 204 if _.isEmpty request.body.shadows
     debug 'proxy: not a gateblu' unless request.body.type == 'device:gateblu'
     return @proxy request, response unless request.body.type == 'device:gateblu'
 
