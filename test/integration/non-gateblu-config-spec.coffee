@@ -39,7 +39,7 @@ describe 'Non-Gateblu config event', ->
           .reply 200, uuid: 'team-uuid', token: 'team-token'
 
         @proxyConfigToShadowService = @shadowService
-          .post '/config'
+          .post '/virtual/config'
           .set 'Authorization', "Basic #{teamAuth}"
           .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
           .reply 204
@@ -73,7 +73,7 @@ describe 'Non-Gateblu config event', ->
           .reply 200, uuid: 'team-uuid', token: 'team-token'
 
         @proxyConfigToShadowService = @shadowService
-          .post '/config'
+          .post '/virtual/config'
           .set 'Authorization', "Basic #{teamAuth}"
           .send uuid: 'device-uuid', type: 'device:not-gateblu', foo: 'bar', shadowing: {uuid: 'some-uuid'}
           .reply 403, 'Not authorized to modify that device'

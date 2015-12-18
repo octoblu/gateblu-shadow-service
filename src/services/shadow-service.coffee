@@ -6,7 +6,7 @@ class ShadowService
   proxy: ({meshbluAuth,body}, callback) =>
     options =
       baseUrl: @shadowServiceUri
-      uri: '/config'
+      uri: '/virtual/config'
       auth:
         username: meshbluAuth.uuid
         password: meshbluAuth.token
