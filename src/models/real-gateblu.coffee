@@ -1,6 +1,7 @@
-_           = require 'lodash'
-async       = require 'async'
-MeshbluHttp = require 'meshblu-http'
+_                = require 'lodash'
+async            = require 'async'
+MeshbluHttp      = require 'meshblu-http'
+VirtualSubdevice = require './virtual-subdevice'
 
 class RealGateblu
   constructor: ({@attributes,@meshbluConfig}) ->
@@ -15,18 +16,14 @@ class RealGateblu
       @meshblu.update uuid, {devices: subdeviceUuids}, callback
 
   virtualSubdeviceUuids: ({owner}, callback) =>
-    getVirtualSubdeviceUuid = (subdeviceUuid, callback) =>
-      @virtualSubdeviceUuid {owner, subdeviceUuid}, callback
+    virtualSubdevices = _.map @attributes.devices, (realUuid) =>
+      new VirtualSubdevice {owner, realUuid, @meshbluConfig}
 
-    async.map @attributes.devices, getVirtualSubdeviceUuid, (error, subdeviceUuids) =>
+    async.map virtualSubdevices, @_getUuidForVirtualSubdevice, (error, subdeviceUuids) =>
       return callback error if error?
       return callback null, _.compact(subdeviceUuids)
 
-  virtualSubdeviceUuid: ({owner, subdeviceUuid}, callback) =>
-    @meshblu.device subdeviceUuid, (error, subdevice) =>
-      return callback error if error?
-
-      subdevice = _.findWhere subdevice.shadows, {owner}
-      callback null, subdevice?.uuid
+  _getUuidForVirtualSubdevice: (virtualSubdevice, callback) =>
+    virtualSubdevice.getUuid callback
 
 module.exports = RealGateblu
