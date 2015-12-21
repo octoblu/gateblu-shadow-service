@@ -13,7 +13,11 @@ class RealGateblu
   updateVirtualGateblu: ({uuid,owner}, callback) =>
     @virtualSubdeviceUuids {owner}, (error, subdeviceUuids) =>
       return callback error if error?
-      @meshblu.update uuid, {devices: subdeviceUuids}, callback
+      @meshblu.device uuid, (error, virtualGateblu) =>
+        return callback error if error?
+        changes = _.xor virtualGateblu.devices, subdeviceUuids
+        return callback() if _.isEmpty changes
+        @meshblu.update uuid, {devices: subdeviceUuids}, callback
 
   virtualSubdeviceUuids: ({owner}, callback) =>
     virtualSubdevices = _.map @attributes.devices, (realUuid) =>

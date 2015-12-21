@@ -39,6 +39,11 @@ describe 'Real Gateblu config event', ->
         .set 'Authorization', "Basic #{gatebluAuth}"
         .reply 200, shadows: [{uuid: 'virtual-subdevice-uuid', owner: 'user-uuid'}]
 
+      @meshblu
+        .get '/v2/devices/virtual-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-gateblu-uuid', devices: []
+
       @updateVirtualGatebluDevice = @meshblu
         .patch '/v2/devices/virtual-gateblu-uuid'
         .set 'Authorization', "Basic #{gatebluAuth}"
@@ -83,11 +88,21 @@ describe 'Real Gateblu config event', ->
           {uuid: 'virtual-2-subdevice-uuid', owner:'user-2-uuid'}
         ]
 
+      @meshblu
+        .get '/v2/devices/virtual-1-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-1-gateblu-uuid', devices: []
+
       @updateVirtualGatebluDevice1 = @meshblu
         .patch '/v2/devices/virtual-1-gateblu-uuid'
         .set 'Authorization', "Basic #{gatebluAuth}"
         .send devices: ['virtual-1-subdevice-uuid']
         .reply 204
+
+      @meshblu
+        .get '/v2/devices/virtual-2-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-1-gateblu-uuid', devices: []
 
       @updateVirtualGatebluDevice2 = @meshblu
         .patch '/v2/devices/virtual-2-gateblu-uuid'
@@ -131,6 +146,11 @@ describe 'Real Gateblu config event', ->
         .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
 
       @meshblu
+        .get '/v2/devices/virtual-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-gateblu-uuid', devices: []
+
+      @meshblu
         .get '/v2/devices/real-subdevice-uuid'
         .set 'Authorization', "Basic #{gatebluAuth}"
         .reply 200, shadows: [{uuid: 'virtual-subdevice-uuid', owner: 'user-uuid'}]
@@ -169,6 +189,11 @@ describe 'Real Gateblu config event', ->
         .get '/v2/whoami'
         .set 'Authorization', "Basic #{gatebluAuth}"
         .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
+
+      @meshblu
+        .get '/v2/devices/virtual-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-gateblu-uuid', devices: []
 
       @meshblu
         .get '/v2/devices/real-subdevice-uuid'
@@ -218,4 +243,40 @@ describe 'Real Gateblu config event', ->
       request.post options, (error, @response, @body) => done error
 
     it 'should return a 204', ->
+      expect(@response.statusCode).to.equal 204, @body
+
+  describe 'when both gateblu and subdevice have only one shadow each and the shadow gateblu is up to date', ->
+    beforeEach (done) ->
+      gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
+
+      @meshblu
+        .get '/v2/whoami'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
+
+      @meshblu
+        .get '/v2/devices/real-subdevice-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, shadows: [{uuid: 'virtual-subdevice-uuid', owner: 'user-uuid'}]
+
+      @meshblu
+        .get '/v2/devices/virtual-gateblu-uuid'
+        .set 'Authorization', "Basic #{gatebluAuth}"
+        .reply 200, uuid: 'virtual-gateblu-uuid', devices: ['virtual-subdevice-uuid']
+
+      options =
+        baseUrl: "http://localhost:#{@serverPort}"
+        uri: '/real/config'
+        auth:
+          username: 'real-gateblu-uuid'
+          password: 'real-gateblu-token'
+        json:
+          uuid: 'real-gateblu-uuid'
+          type: 'device:gateblu'
+          shadows: [{uuid: 'virtual-gateblu-uuid', owner: 'user-uuid'}]
+          devices: ['real-subdevice-uuid']
+
+      request.post options, (error, @response, @body) => done error
+
+    it 'should return a 204 without trying to update the shadow', ->
       expect(@response.statusCode).to.equal 204, @body
