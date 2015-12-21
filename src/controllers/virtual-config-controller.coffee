@@ -5,8 +5,6 @@ class VirtualConfigController
   constructor: ({@shadowService}) ->
 
   update: (request, response) =>
-    debug '422: no request.body.type' unless request.body.type?
-    return response.sendStatus 422 unless request.body.type?
     debug '204: no request.body.shadowing.uuid' unless request.body.shadowing?.uuid?
     return response.sendStatus 204 unless request.body.shadowing?.uuid?
     debug 'proxy: not a gateblu' unless request.body.type == 'device:gateblu'
