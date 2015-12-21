@@ -6,8 +6,6 @@ class RealConfigController
   constructor: ({@shadowService}) ->
 
   update: (request, response) =>
-    debug '422: no request.body.type' unless request.body.type?
-    return response.sendStatus 422 unless request.body.type?
     debug '204: no request.body.shadowing.uuid' if _.isEmpty request.body.shadows
     return response.sendStatus 204 if _.isEmpty request.body.shadows
     debug 'proxy: not a gateblu' unless request.body.type == 'device:gateblu'

@@ -25,26 +25,3 @@ describe 'Real invalid config events', ->
 
     afterEach (done) ->
       @meshblu.close done
-
-    describe 'When the request contains no body', ->
-      beforeEach (done) ->
-        gatebluAuth = new Buffer('real-gateblu-uuid:real-gateblu-token').toString 'base64'
-        @meshblu
-          .get '/v2/whoami'
-          .set 'Authorization', "Basic #{gatebluAuth}"
-          .reply 200, uuid: 'real-gateblu-uuid', token: 'real-gateblu-token'
-
-        options =
-          baseUrl: "http://localhost:#{@serverPort}"
-          uri: '/real/config'
-          auth:
-            username: 'real-gateblu-uuid'
-            password: 'real-gateblu-token'
-
-        request.post options, (error, @response, @body) => done error
-
-      it 'should return a 422', ->
-        expect(@response.statusCode).to.equal 422, @body
-
-      it 'should have a descriptive error', ->
-        expect(@body).to.deep.equal 'Unprocessable Entity'
