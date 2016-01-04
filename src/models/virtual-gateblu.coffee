@@ -7,19 +7,26 @@ class VirtualGateblu
   constructor: ({@attributes,meshbluConfig}) ->
     @meshblu = new MeshbluHttp meshbluConfig
 
-  devirtualizedSubdeviceUuid: (uuid, callback) =>
+  devirtualizedDevice: ({uuid, connector, type}, callback) =>
+    return callback @_userError 'malformed subdevice record', 422 unless uuid?
     @meshblu.device uuid, (error, virtualSubdevice) =>
       return callback error if error?
-      return callback null, virtualSubdevice.shadowing.uuid
+      realDeviceUuid = virtualSubdevice.shadowing.uuid
+      return callback null, {uuid: realDeviceUuid, connector, type}
 
-  devirtualizedSubdeviceUuids: (callback) =>
-    async.map @attributes.devices, @devirtualizedSubdeviceUuid, callback
+  devirtualizedDevices: (callback) =>
+    async.mapSeries @attributes.devices, @devirtualizedDevice, callback
 
   updateRealGateblu: (callback) =>
-    @devirtualizedSubdeviceUuids (error, subdeviceUuids) =>
+    @devirtualizedDevices (error, subdeviceUuids) =>
       return callback error if error?
 
-      uuid = @attributes.shadowing.uuid
-      @meshblu.update uuid, devices: subdeviceUuids, callback
+      realGatebluUuid = @attributes.shadowing.uuid
+      @meshblu.update realGatebluUuid, devices: subdeviceUuids, callback
+
+  _userError: (message, code) =>
+    error = new Error message
+    error.code = code if code?
+    return error
 
 module.exports = VirtualGateblu

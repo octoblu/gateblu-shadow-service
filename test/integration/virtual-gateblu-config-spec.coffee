@@ -42,7 +42,7 @@ describe 'Virtual Gateblu config event', ->
       @updateRealGatebluDevice = @meshblu
         .patch '/v2/devices/real-gateblu-uuid'
         .set 'Authorization', "Basic #{teamAuth}"
-        .send devices: ['real-subdevice-uuid']
+        .send devices: [{uuid:'real-subdevice-uuid', type: 'device:type', connector: 'the-connector'}]
         .reply 204
 
       options =
@@ -55,7 +55,7 @@ describe 'Virtual Gateblu config event', ->
           uuid: 'virtual-gateblu-uuid'
           type: 'device:gateblu'
           shadowing: {uuid: 'real-gateblu-uuid'}
-          devices: ['virtual-subdevice-uuid']
+          devices: [{uuid:'virtual-subdevice-uuid', type: 'device:type', connector: 'the-connector'}]
 
       request.post options, (error, @response, @body) => done error
 
@@ -64,6 +64,37 @@ describe 'Virtual Gateblu config event', ->
 
     it 'should update the real Gateblu device in Meshblu', ->
       @updateRealGatebluDevice.done()
+
+  describe 'When the config event is about a virtual gateblu with a bad subdevice record', ->
+    beforeEach (done) ->
+      teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+
+      @meshblu
+        .get '/v2/whoami'
+        .set 'Authorization', "Basic #{teamAuth}"
+        .reply 200, uuid: 'team-uuid', token: 'team-token'
+
+      @meshblu
+        .get '/v2/devices/virtual-subdevice-uuid'
+        .set 'Authorization', "Basic #{teamAuth}"
+        .reply 200, shadowing: {uuid: 'real-subdevice-uuid'}
+
+      options =
+        baseUrl: "http://localhost:#{@serverPort}"
+        uri: '/virtual/config'
+        auth:
+          username: 'team-uuid'
+          password: 'team-token'
+        json:
+          uuid: 'virtual-gateblu-uuid'
+          type: 'device:gateblu'
+          shadowing: {uuid: 'real-gateblu-uuid'}
+          devices: [{uuid: 'virtual-subdevice-uuid'}, 'oh-no-someone-messed-up']
+
+      request.post options, (error, @response, @body) => done error
+
+    it 'should return a 422', ->
+      expect(@response.statusCode).to.equal 422, @body
 
   describe 'When the team does not have permission to update the real gateblu', ->
     beforeEach (done) ->
@@ -82,7 +113,7 @@ describe 'Virtual Gateblu config event', ->
       @meshblu
         .patch '/v2/devices/real-gateblu-uuid'
         .set 'Authorization', "Basic #{teamAuth}"
-        .send devices: ['real-subdevice-uuid']
+        .send devices: [{uuid: 'real-subdevice-uuid'}]
         .reply 403, error: 'No permission'
 
       options =
@@ -95,7 +126,7 @@ describe 'Virtual Gateblu config event', ->
           uuid: 'virtual-gateblu-uuid'
           type: 'device:gateblu'
           shadowing: {uuid: 'real-gateblu-uuid'}
-          devices: ['virtual-subdevice-uuid']
+          devices: [{uuid:'virtual-subdevice-uuid'}]
 
       request.post options, (error, @response, @body) => done error
 
@@ -129,7 +160,7 @@ describe 'Virtual Gateblu config event', ->
           uuid: 'virtual-gateblu-uuid'
           type: 'device:gateblu'
           shadowing: {uuid: 'real-gateblu-uuid'}
-          devices: ['virtual-subdevice-uuid']
+          devices: [{uuid:'virtual-subdevice-uuid'}]
 
       request.post options, (error, @response, @body) => done error
 
@@ -157,7 +188,7 @@ describe 'Virtual Gateblu config event', ->
         json:
           uuid: 'virtual-gateblu-uuid'
           type: 'device:gateblu'
-          devices: ['virtual-subdevice-uuid']
+          devices: [{uuid:'virtual-subdevice-uuid'}]
 
       request.post options, (error, @response, @body) => done error
 
