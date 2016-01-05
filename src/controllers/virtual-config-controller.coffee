@@ -1,5 +1,5 @@
 debug = require('debug')('gateblu-shadow-service:virtual-config-controller')
-VirtualGateblu = require '../models/virtual-gateblu'
+GatebluShadower = require 'gateblu-shadower'
 
 class VirtualConfigController
   constructor: ({@shadowService}) ->
@@ -11,8 +11,8 @@ class VirtualConfigController
     return @proxy request, response unless request.body.type == 'device:gateblu'
 
     debug 'virtualGateblu: updateRealGateblu'
-    virtualGateblu = new VirtualGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
-    virtualGateblu.updateRealGateblu (error) =>
+    gatebluShadower = new GatebluShadower meshbluConfig: request.meshbluAuth
+    gatebluShadower.updateRealFromVirtual request.body, (error) =>
       return @sendError {response, error} if error?
       debug "204: virtualGateblu update success"
       response.sendStatus 204

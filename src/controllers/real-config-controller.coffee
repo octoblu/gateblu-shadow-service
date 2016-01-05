@@ -1,6 +1,6 @@
 _           = require 'lodash'
 debug       = require('debug')('gateblu-shadow-service:real-config-controller')
-RealGateblu = require '../models/real-gateblu'
+GatebluShadower = require 'gateblu-shadower'
 
 class RealConfigController
   constructor: ({@shadowService}) ->
@@ -12,8 +12,8 @@ class RealConfigController
     return @proxy request, response unless request.body.type == 'device:gateblu'
 
     debug 'realGateblu: updateVirtualGateblus'
-    realGateblu = new RealGateblu attributes: request.body, meshbluConfig: request.meshbluAuth
-    realGateblu.updateVirtualGateblus (error) =>
+    gatebluShadower = new GatebluShadower meshbluConfig: request.meshbluAuth
+    gatebluShadower.updateVirtualsFromReal request.body, (error) =>
       return @sendError {response, error} if error?
       response.sendStatus 204
 
