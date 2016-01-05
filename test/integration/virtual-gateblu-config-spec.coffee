@@ -170,6 +170,40 @@ describe 'Virtual Gateblu config event', ->
     it 'should return a usefull error message', ->
       expect(@body).to.deep.equal 'You do not belong here'
 
+  describe 'When the virtual subdevice doesn\'t exist', ->
+    beforeEach (done) ->
+      teamAuth = new Buffer('team-uuid:team-token').toString 'base64'
+
+      @meshblu
+        .get '/v2/whoami'
+        .set 'Authorization', "Basic #{teamAuth}"
+        .reply 200, uuid: 'team-uuid', token: 'team-token'
+
+      @meshblu
+        .get '/v2/devices/virtual-subdevice-uuid'
+        .set 'Authorization', "Basic #{teamAuth}"
+        .reply 404, 'What device?'
+
+      options =
+        baseUrl: "http://localhost:#{@serverPort}"
+        uri: '/virtual/config'
+        auth:
+          username: 'team-uuid'
+          password: 'team-token'
+        json:
+          uuid: 'virtual-gateblu-uuid'
+          type: 'device:gateblu'
+          shadowing: {uuid: 'real-gateblu-uuid'}
+          devices: [{uuid:'virtual-subdevice-uuid'}]
+
+      request.post options, (error, @response, @body) => done error
+
+    it 'should return a 422', ->
+      expect(@response.statusCode).to.equal 422, @body
+
+    it 'should return a useful error message', ->
+      expect(@body).to.deep.equal "could not find device for uuid: virtual-subdevice-uuid"
+
   describe 'When the gateblu is not shadowing anything', ->
     beforeEach (done) ->
       teamAuth = new Buffer('team-uuid:team-token').toString 'base64'

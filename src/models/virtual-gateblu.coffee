@@ -8,9 +8,12 @@ class VirtualGateblu
     @meshblu = new MeshbluHttp meshbluConfig
 
   devirtualizedDevice: ({uuid, connector, type}, callback) =>
-    return callback @_userError 'malformed subdevice record', 422 unless uuid?
+    return callback @_userError "malformed subdevice record", 422 unless uuid?
     @meshblu.device uuid, (error, virtualSubdevice) =>
-      return callback error if error?
+      if error?
+        return callback @_userError "could not find device for uuid: #{uuid}", 422 if error.code == 404
+        return callback error
+
       realDeviceUuid = virtualSubdevice.shadowing.uuid
       return callback null, {uuid: realDeviceUuid, connector, type}
 
@@ -18,11 +21,11 @@ class VirtualGateblu
     async.mapSeries @attributes.devices, @devirtualizedDevice, callback
 
   updateRealGateblu: (callback) =>
-    @devirtualizedDevices (error, subdeviceUuids) =>
+    @devirtualizedDevices (error, realSubdeviceRecords) =>
       return callback error if error?
 
       realGatebluUuid = @attributes.shadowing.uuid
-      @meshblu.update realGatebluUuid, devices: subdeviceUuids, callback
+      @meshblu.update realGatebluUuid, devices: realSubdeviceRecords, callback
 
   _userError: (message, code) =>
     error = new Error message
