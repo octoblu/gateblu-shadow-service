@@ -46,6 +46,7 @@ describe 'Real Gateblu config event', ->
 
       @updateVirtualGatebluDevice = @meshblu
         .patch '/v2/devices/virtual-gateblu-uuid'
+        .set 'x-meshblu-forwardedfor', '["real-gateblu-uuid"]'
         .set 'Authorization', "Basic #{gatebluAuth}"
         .send devices: ['virtual-subdevice-uuid'], type: 'device:gateblu', name: 'My Gateblu'
         .reply 204
